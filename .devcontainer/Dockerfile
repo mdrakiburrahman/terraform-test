@@ -31,6 +31,16 @@ RUN curl -OL https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz \
 
 ENV PATH=$PATH:/usr/local/go/bin
 
+# Install the Azure CLI
+RUN apt-get install -y apt-transport-https gnupg2 lsb-release \
+    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" > /etc/apt/sources.list.d/azure-cli.list \
+    && curl -sL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - 2>/dev/null \
+    && apt-get update \
+    && apt-get install -y azure-cli=2.35.0-1~focal
+
+# Add Azure CLI extensions
+RUN az config set extension.use_dynamic_install=yes_without_prompt
+
 # Install Linux stuff
 RUN apt-get update \
     && apt-get install dos2unix -y \
