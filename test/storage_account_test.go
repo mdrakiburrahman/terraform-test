@@ -112,8 +112,6 @@ func TestStorageAccountExample(t *testing.T) {
 	// Call Azure SDK for ARM Storage to get back the Storage Account Location
 	// https://github.com/Azure/azure-sdk-for-go/tree/main/sdk/resourcemanager/storage/armstorage
 
-
-
 	t.Run("test_1", func(t *testing.T) {
 		assert.Equal(t, "one", "one", "Should always pass")
 	})
