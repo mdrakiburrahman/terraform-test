@@ -2,7 +2,8 @@ package test
 
 import (
 	// Native
-
+	"context"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -19,12 +20,20 @@ var (
 	globalBackendConf = make(map[string]interface{})
 )
 
-func TestStorageAccountExample(t *testing.T) {
+func TestStorageAccount(t *testing.T) {
 
 	t.Parallel()
+	ctx := context.Background()
 
-	// Grabs Service Principal environment variables, errors if any are missing
+	// Grabs Terraform authentication environment variables, errors if any are missing
 	EnvVars, err := setTerraformVariables()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Authenticate to Azure and initiate context
+	cred, err := getAzureCred()
 
 	if err != nil {
 		t.Fatal(err)
@@ -32,8 +41,7 @@ func TestStorageAccountExample(t *testing.T) {
 
 	// Set input values for the test
 	inputUniquePostfix := strings.ToLower(random.UniqueId())
-	// inputResourceGroupName := fmt.Sprintf("%s-%s", "terratest-storage-account", inputUniquePostfix) // <---- Local switch
-	inputResourceGroupName := "terratest-storage-account-debug-rg" // <---- Local switch
+	inputResourceGroupName := fmt.Sprintf("%s-%s", "terratest-storage-account", inputUniquePostfix)
 	inputLocation := "canadacentral"
 	inputTags := map[string]string{
 		"Source":  "terratest",
@@ -70,29 +78,30 @@ func TestStorageAccountExample(t *testing.T) {
 	})
 
 	// Clean up resources with "terraform destroy" at the end of the test.
-	// defer terraform.Destroy(t, terraformOptions) // <---- Local switch
+	defer terraform.Destroy(t, terraformOptions)
 
 	// Run "terraform init" and "terraform apply". Fail the test if there are any errors.
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Run `terraform output` to get the values of output variables and check they have the expected values.
-	outputLocation := terraform.Output(t, terraformOptions, "primary_location")
+	TF_OutputLocation := terraform.Output(t, terraformOptions, "primary_location")
+	TF_OutputStorageAccountName := terraform.Output(t, terraformOptions, "storage_account_name")
 
 	// = = = = = = = = = =
 	// Run tests
 	// = = = = = = = = = =
-	t.Run("storage_account_location_tf_input_matched_output", func(t *testing.T) {
-		assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(outputLocation), "Storage Account Location TF Input = TF Output")
+	t.Run("storage_account_location_tf_input_matched_tf_output", func(t *testing.T) {
+		assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(TF_OutputLocation), "Storage Account Location TF Input = TF Output")
 	})
 
 	// Call Azure SDK for ARM Storage to get back the Storage Account Location
 	// https://github.com/Azure/azure-sdk-for-go/tree/main/sdk/resourcemanager/storage/armstorage
+	properties, err := storageAccountProperties(ctx, cred, inputResourceGroupName, TF_OutputStorageAccountName)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	t.Run("test_1", func(t *testing.T) {
-		assert.Equal(t, "one", "one", "Should always pass")
-	})
-
-	t.Run("test_2", func(t *testing.T) {
-		assert.Equal(t, "one", "two", "Should always fail")
+	t.Run("storage_account_location_tf_input_matched_arm_output", func(t *testing.T) {
+		assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(*properties.Location), "Storage Account Location TF Input = ARM Output")
 	})
 }
