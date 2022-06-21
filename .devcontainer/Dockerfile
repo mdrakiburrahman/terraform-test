@@ -8,7 +8,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG TF_Version="1.2.3"
 
 # Go version:
-ARG GO_VERSION="1.16"
+ARG GO_VERSION="1.18"
 
 # Configure apt and install packages
 RUN apt-get update \

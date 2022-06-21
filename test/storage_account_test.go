@@ -103,4 +103,17 @@ func TestStorageAccountExample(t *testing.T) {
 
 	// Convert outputLocation to lower and compare with expectedLocation
 	assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(outputLocation))
+
+	// Run tests
+	t.Run("storage_account_location_matched", func(t *testing.T) {
+		assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(outputLocation), "Storage Account Location matched input")
+	})
+
+	t.Run("test_1", func(t *testing.T) {
+		assert.Equal(t, "one", "one", "Should always pass")
+	})
+
+	t.Run("test_2", func(t *testing.T) {
+		assert.Equal(t, "one", "two", "Should always fail")
+	})
 }

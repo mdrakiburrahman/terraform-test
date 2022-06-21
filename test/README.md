@@ -30,7 +30,5 @@ go test -v -timeout 90m
 Run one specific test:
 
 ```bash
-go test -v -timeout 90m -run '<TEST_NAME>'
-
-# Example: go test -v -timeout 90m -run 'TestStorageAccountExample'
+go test -v -timeout 90m -run 'TestStorageAccountExample'
 ```
