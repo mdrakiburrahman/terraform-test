@@ -59,5 +59,8 @@ RUN apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/downloads
 
+# Install anything else needed to go get
+RUN go install -v golang.org/x/tools/gopls@latest
+
 # Switch back to dialog for any ad-hoc use of apt-get
 ENV DEBIAN_FRONTEND=dialog

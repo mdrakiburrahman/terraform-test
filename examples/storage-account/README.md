@@ -6,7 +6,7 @@ use the [storage-account module](../../modules/data-stores/storage-account) to d
 ## Pre-requisites
 
 * Launch this `.devcontainer`
-* You must have an Azure Service Principal with `Contributor` priveleges.
+* You must have an Azure Service Principal with `Contributor` priveleges injected into this container.
 
 Please note that this code was written for Terraform 1.x+.
 

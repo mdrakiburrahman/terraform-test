@@ -1,15 +1,16 @@
-package main
+package test
 
 import (
 	// Native
+	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
-	"errors"
 
 	// Terragrunt
-	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/terraform"
 
 	// Testing
 	"github.com/stretchr/testify/assert"
@@ -17,21 +18,9 @@ import (
 
 // Global variable declaration block
 var (
-
-	resourceGroup 	  = "terratest-hackathon-1-youtube-rg"
 	globalBackendConf = make(map[string]interface{})
 	globalEnvVars     = make(map[string]string)
-	uniquePostfix     = strings.ToLower(random.UniqueId())
-
 )
-
-const (
-
-	apiVersion              = "2019-06-01"
-	resourceProvisionStatus = "Succeeded"
-
-)
-
 
 // Injects environment variables into map for Terraform authentication with Azure
 func setTerraformVariables() (map[string]string, error) {
@@ -58,31 +47,39 @@ func setTerraformVariables() (map[string]string, error) {
 	return globalEnvVars, nil
 }
 
-func TestTerraform_storage_account(t *testing.T) {
+func TestStorageAccountExample(t *testing.T) {
 
 	t.Parallel()
 
 	// Grabs Service Principal environment variables
 	setTerraformVariables()
 
-	// Sets expected values for the test
-	expectedLocation := "eastus"
-	expectedStorageAccountTier := "Standard"
-	expectedStorageAccountKind := "StorageV2"
+	// Set input values for the test
+	inputUniquePostfix := strings.ToLower(random.UniqueId())
+	inputResourceGroupName := fmt.Sprintf("%s-%s", "terratest-storage-account", inputUniquePostfix)
+	inputLocation := "canadacentral"
+	inputTags := map[string]string{
+		"Source":  "terratest",
+		"Owner":   "Raki Rahman",
+		"Project": "Terraform CI testing",
+	}
+	inputAccountTier := "Standard"
+	inputAccountKind := "StorageV2"
 
 	// Use Terratest to call Terraform
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
-		
+
 		// Set the path to the Terraform code that will be tested.
-		TerraformDir: "../provision",
+		TerraformDir: "../examples/storage-account",
 
 		// Variables to pass to our Terraform code using -var options.
 		Vars: map[string]interface{}{
-			"resource_group_name": 	resourceGroup,
-			"location":         	expectedLocation,   
-			"account_tier":         expectedStorageAccountTier,
-			"unique_postfix":       uniquePostfix,
-			"account_kind":         expectedStorageAccountKind,
+			"resource_group_name":    inputResourceGroupName,
+			"location":               inputLocation,
+			"tags":                   inputTags,
+			"account_tier":           inputAccountTier,
+			"account_kind":           inputAccountKind,
+			"account_unique_postfix": inputUniquePostfix,
 		},
 
 		// Service Principal creds from Environment Variables
@@ -93,7 +90,6 @@ func TestTerraform_storage_account(t *testing.T) {
 
 		// Colors in Terraform commands
 		NoColor: false,
-
 	})
 
 	// Clean up resources with "terraform destroy" at the end of the test.
@@ -106,5 +102,5 @@ func TestTerraform_storage_account(t *testing.T) {
 	outputLocation := terraform.Output(t, terraformOptions, "primary_location")
 
 	// Convert outputLocation to lower and compare with expectedLocation
-	assert.Equal(t, strings.ToLower(expectedLocation), strings.ToLower(outputLocation))
+	assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(outputLocation))
 }

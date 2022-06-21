@@ -6,6 +6,7 @@ module "resource_group" {
 }
 
 module "storage_account" {
+  depends_on = [module.resource_group]
   source              = "../../modules/data-stores/storage-account"
   resource_group_name = var.resource_group_name
   location            = var.location
