@@ -105,9 +105,14 @@ func TestStorageAccountExample(t *testing.T) {
 	assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(outputLocation))
 
 	// Run tests
-	t.Run("storage_account_location_matched", func(t *testing.T) {
-		assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(outputLocation), "Storage Account Location matched input")
+	t.Run("storage_account_location_tf_input_matched_output", func(t *testing.T) {
+		assert.Equal(t, strings.ToLower(inputLocation), strings.ToLower(outputLocation), "Storage Account Location TF Input = TF Output")
 	})
+
+	// Call Azure SDK for ARM Storage to get back the Storage Account Location
+	// https://github.com/Azure/azure-sdk-for-go/tree/main/sdk/resourcemanager/storage/armstorage
+
+
 
 	t.Run("test_1", func(t *testing.T) {
 		assert.Equal(t, "one", "one", "Should always pass")
