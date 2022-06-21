@@ -1,5 +1,5 @@
 terraform {
-  
+
   required_version = "~> 1.0"
   required_providers {
     azurerm = "~> 3.9.0"
@@ -11,8 +11,8 @@ terraform {
 
     # storage_account_name = "abcd1234"
     # container_name       = "tfstate"
-    # key                  = "prod.terraform.tfstate"
     # access_key           = "abcdefghijklmnopqrstuvwxyz0123456789..."
+    # key                  = "prod.terraform.tfstate"
   }
 }
 

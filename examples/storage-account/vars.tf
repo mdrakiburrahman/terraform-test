@@ -28,6 +28,11 @@ variable "account_kind" {
   default = "StorageV2"
 }
 
+variable "replication_type" {
+  type    = string
+  default = "LRS"
+}
+
 variable "account_unique_postfix" {
   type = string
 }
