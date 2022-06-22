@@ -120,6 +120,20 @@ go test -timeout 30m -run 'TestStorageAccountExampleWithStages'
 # PASS
 # ok      github.com/mdrakiburrahman/terraform-test       8.912s
 
+# Note that if we make one of our tests fail on purpose, only then do we see the test breakdown:
+# --- FAIL: TestStorageAccountExampleWithStages (9.01s)
+#     --- FAIL: TestStorageAccountExampleWithStages/storage_account_location_tf_input_matched_arm_output (0.00s)
+#         storage_account_example_test.go:129: 
+#                 Error Trace:    storage_account_example_test.go:129
+#                 Error:          Should not be: "canadacentral"
+#                 Test:           TestStorageAccountExampleWithStages/storage_account_location_tf_input_matched_arm_output
+#                 Messages:       Storage Account Location TF Input = ARM Output
+# FAIL
+# exit status 1
+# FAIL    github.com/mdrakiburrahman/terraform-test       9.036s
+
+
+
 # The beauty is:
 # 1. We can rerun validations super quick
 # 2. If we had another module that dependend on the Storage Account, that would run quickly too!

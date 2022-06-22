@@ -26,12 +26,31 @@ const (
 func TestStorageAccountExampleWithStages(t *testing.T) {
 	t.Parallel()
 
-	// Deploy the Storage Account
-	defer test_structure.RunTestStage(t, "teardown_storageAccount", func() { teardownStorageAccount(t, storageAccountExampleGitDir) })
-	test_structure.RunTestStage(t, "deploy_storageAccount", func() { deployStorageAccount(t, storageAccountExampleGitDir) })
+	// Defer destruction
+	defer test_structure.RunTestStage(t, "teardown_storageAccount", func() {
+		storageAccountOpts := test_structure.LoadTerraformOptions(t, storageAccountExampleGitDir)
+		defer terraform.Destroy(t, storageAccountOpts)
+	})
 
-	// Validate the Storage Account is deployed correctly
-	test_structure.RunTestStage(t, "validate_storageAccount", func() { validateStorageAccount(t, storageAccountExampleGitDir) })
+	// Deploy
+	test_structure.RunTestStage(t, "deploy_storageAccount", func() {
+		storageAccountOpts := createStorageAccountOpts(t, storageAccountExampleGitDir)
+
+		// Save data to disk so that other test stages executed at a later time can read the data back in
+		test_structure.SaveTerraformOptions(t, storageAccountExampleGitDir, storageAccountOpts)
+
+		terraform.InitAndApply(t, storageAccountOpts)
+	})
+
+	// Test
+	test_structure.RunTestStage(t, "validate_storageAccount", func() {
+		storageAccountOpts := test_structure.LoadTerraformOptions(t, storageAccountExampleGitDir)
+
+		// 1. Validate Terraform location input variable and location output match
+		validateStorageAccountWithTF(t, storageAccountOpts)
+		// 2. Another such validation test is querying ARM - and we can have several of these - like file push/pull etc.
+		validateStorageAccountWithARM(t, storageAccountOpts)
+	})
 }
 
 // Creates Terraform Options for Storage Account module with remote state backend
@@ -79,39 +98,17 @@ func createStorageAccountOpts(t *testing.T, terraformDir string) *terraform.Opti
 	}
 }
 
-// Tears down the Storage Account
-func teardownStorageAccount(t *testing.T, storageAccountDir string) {
-	storageAccountOpts := test_structure.LoadTerraformOptions(t, storageAccountDir)
-	defer terraform.Destroy(t, storageAccountOpts)
-}
-
-// Deploys storage account and stores Terraform Options locally for skipping stages
-func deployStorageAccount(t *testing.T, storageAccountDir string) {
-	storageAccountOpts := createStorageAccountOpts(t, storageAccountDir)
-
-	// Save data to disk so that other test stages executed at a later time can read the data back in
-	test_structure.SaveTerraformOptions(t, storageAccountDir, storageAccountOpts)
-
-	terraform.InitAndApply(t, storageAccountOpts)
-}
-
-// Validates the Storage Account is deployed correctly
-func validateStorageAccount(t *testing.T, storageAccountDir string) {
-	storageAccountOpts := test_structure.LoadTerraformOptions(t, storageAccountDir)
-
-	// 1. Validate Terraform location input variable and location output match
+// Function compares TF input and output to validate the Storage Account is deployed as we asked
+func validateStorageAccountWithTF(t *testing.T, storageAccountOpts *terraform.Options) {
 	TF_InputLocation := storageAccountOpts.Vars["location"].(string)
 	TF_OutputLocation := terraform.Output(t, storageAccountOpts, "primary_location")
 
 	t.Run("storage_account_location_tf_input_matched_tf_output", func(t *testing.T) {
 		assert.Equal(t, strings.ToLower(TF_InputLocation), strings.ToLower(TF_OutputLocation), "Storage Account Location TF Input = TF Output")
 	})
-
-	// 2. Another such validation test is querying ARM - and we can have several of these - like file push/pull etc.
-	validateStorageAccountWithARM(t, storageAccountOpts)
 }
 
-// Function calls ARM to validate the Storage Account is deployed correctly
+// Function calls ARM to validate the Storage Account is deployed as we asked
 func validateStorageAccountWithARM(t *testing.T, storageAccountOpts *terraform.Options) {
 	// Authenticate to Azure and initiate context
 	cred := getAzureCred(t)
