@@ -7,3 +7,4 @@
 
 ## Tips
 * For syntax highlight, may need to perform `Reload required`
+* Press `Ctrl + Shift + P` > `Go: Restart Language Server` to get back syntax highlighting

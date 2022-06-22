@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	// Terragrunt
-
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
