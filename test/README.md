@@ -136,6 +136,8 @@ go test -timeout 30m -run 'TestStorageAccountExampleWithStages'
 # 1. We can rerun validations super quick
 # 2. If we had another module that dependend on the Storage Account, that would run quickly too!
 
+# Basically - this^ is perfect for Arc because we don't have to redeploy AKS each time, we can just rerun the Onboard and Offboard stages over and over.
+
 # 5 - Destroy
 SKIP_deploy_storageAccount=true \
 SKIP_validate_storageAccount=true \
