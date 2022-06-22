@@ -132,8 +132,6 @@ go test -timeout 30m -run 'TestStorageAccountExampleWithStages'
 # exit status 1
 # FAIL    github.com/mdrakiburrahman/terraform-test       9.036s
 
-
-
 # The beauty is:
 # 1. We can rerun validations super quick
 # 2. If we had another module that dependend on the Storage Account, that would run quickly too!
