@@ -128,4 +128,6 @@ go test -timeout 30m -run 'TestStorageAccountExampleWithStages'
 SKIP_deploy_storageAccount=true \
 SKIP_validate_storageAccount=true \
 go test -timeout 30m -run 'TestStorageAccountExampleWithStages'
+# PASS
+# ok      github.com/mdrakiburrahman/terraform-test       144.295s
 ```
